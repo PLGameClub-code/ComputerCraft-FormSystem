@@ -92,7 +92,6 @@ while true do
     centerTextBottom("Press y to send the form or n to cancel!")
     repeat
         event, key = os.pullEvent("key")
-        print(key)
     until ( (key == keys.y) or (key == keys.n) )
     if (key == keys.y) then
         centerText("Sending...")
