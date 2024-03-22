@@ -1,79 +1,108 @@
+width, height = term.getSize()
 term.setBackgroundColor(colors.gray)
 term.clear()
 term.setTextColor(colors.black)
+
+function cancel(reason)
+    term.setBackgroundColor(colors.black)
+    term.setTextColor(colors.white)
+    term.setCursorPos(1,1)
+    term.clear()
+    if not reason then
+        error("Installation canceled")
+    else
+        error("Installation canceled.\nReason: " .. reason)
+    end
+end
+
 if not term.isColor() then
+    local text = "This application is intented to run on the advanced computer!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
-    term.write("This application is intented to run on the advanced computer!")
+    term.write(text)
+    text = "Do you want to continue anyways? Press y/n."
     term.setCursorPos((width/2)-(text:len() / 2), height/2)
-    term.write("Do you want to continue anyways? Press y/n.")
+    term.write(text)
+    text = "WARNING: Some features can break!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
-    term.write("WARNING: Some features can break!")
+    term.write(text)
     repeat
         event, key = os.pullEvent("key")
     until ( (key == keys.y) or (key == keys.n) )
     if (key == keys.n) then
-        error("Installation canceled")
+        cancel()
     end
 end
 
 url = "https://raw.githubusercontent.com/PLGameClub-code/ComputerCraft-FormSystem/main/"
 
 select = 1
+select_active = true
 while select_active do
     term.setBackgroundColor(colors.gray)
     term.clear()
     term.setTextColor(colors.black)
+    local text = "Select device type"
     term.setCursorPos((width/2)-(text:len() / 2), 1)
-    term.write("Select device type")
+    term.write(text)
     if (select == 1) then
+        text = "X - Client"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
         term.setTextColor(colors.green)
-        term.write("X - Client")
+        term.write(text)
+        text = "O - Server"
         term.setCursorPos((width/2)-(text:len() / 2), height/2)
         term.setTextColor(colors.black)
-        term.write("O - Server")
+        term.write(text)
+        text = "O - Cancel"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
         term.setTextColor(colors.black)
-        term.write("O - Cancel")
+        term.write(text)
     elseif (select == 2) then
+        text = "O - Client"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
         term.setTextColor(colors.black)
-        term.write("O - Client")
+        term.write(text)
+        text = "X - Server"
         term.setCursorPos((width/2)-(text:len() / 2), height/2)
         term.setTextColor(colors.green)
-        term.write("X - Server")
+        term.write(text)
+        text = "O - Cancel"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
         term.setTextColor(colors.black)
-        term.write("O - Cancel")
+        term.write(text)
     elseif (select == 3) then
+        text = "O - Client"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
         term.setTextColor(colors.black)
-        term.write("O - Client")
+        term.write(text)
+        text = "O - Server"
         term.setCursorPos((width/2)-(text:len() / 2), height/2)
         term.setTextColor(colors.black)
-        term.write("O - Server")
+        term.write(text)
+        text = "X - Cancel"
         term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
         term.setTextColor(colors.green)
-        term.write("X - Cancel")
-    elseif (select > 3) then
-        select = 3
-    else
-        select = 1
+        term.write(text)
     end
     repeat
         event, key = os.pullEvent("key")
     until ( (key == keys.up) or (key == keys.down) or (key == keys.enter) )
     if (key == keys.up) then
-        select = select + 1
+        if (select > 1) then
+            select = select - 1
+        end
     elseif (key == keys.down) then
-        select = select - 1
+        if (select < 3) then
+            select = select + 1
+        end
     elseif (key == keys.enter) then
+        select_active = false
         if (select == 1) then
             url = (url .. "installer-client.lua")
         elseif (select == 2) then
             url = (url .. "installer-server.lua")
         elseif (select == 3) then
-            error("Installation canceled")
+            cancel()
         end
     end
 end
@@ -81,7 +110,7 @@ end
 print(url)
 local content = http.get(url).readAll()
 if not content then
-    error("Could not download the installer!")
+    cancel("Could not download the installer")
 end
 local f = fs.open(file, "w")
 f.write(content)
