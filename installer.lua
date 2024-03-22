@@ -11,11 +11,31 @@ function cancel(reason)
     if not reason then
         error("Installation canceled")
     else
-        error("Installation canceled.\nReason: " .. reason)
+        error("Installation canceled.\nReason: " .. reason .. "\n\nYou can contact us on the github issues page:\nhttps://ln.plgame.club/t8SO")
+    end
+end
+
+if fs.exists("/forms") then
+    term.setTextColor(colors.red)
+    local text = "This application is already installed!"
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
+    term.write(text)
+    text = "Do you want to continue anyways? Press y/n."
+    term.setCursorPos((width/2)-(text:len() / 2), height/2)
+    term.write(text)
+    text = "WARNING: This will delete the existing installation!"
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
+    term.write(text)
+    repeat
+        event, key = os.pullEvent("key")
+    until ( (key == keys.y) or (key == keys.n) )
+    if (key == keys.n) then
+        cancel()
     end
 end
 
 if not term.isColor() then
+    term.setTextColor(colors.red)
     local text = "This application is intented to run on the advanced computer!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
     term.write(text)
@@ -40,7 +60,7 @@ select_active = true
 while select_active do
     term.setBackgroundColor(colors.gray)
     term.clear()
-    term.setTextColor(colors.black)
+    term.setTextColor(colors.white)
     local text = "Select device type"
     term.setCursorPos((width/2)-(text:len() / 2), 1)
     term.write(text)
@@ -108,10 +128,20 @@ while select_active do
 end
 
 print(url)
-local content = http.get(url).readAll()
+local content = http.get(url)
 if not content then
     cancel("Could not download the installer")
 end
-local f = fs.open(file, "w")
+content = content.readAll()
+local f = fs.open("installer.lua", "w")
 f.write(content)
 f.close()
+
+if fs.exists("/forms") then
+    fs.delete("/forms")
+end
+fs.makeDir("/forms")
+
+shell.run("installer.lua")
+
+fs.delete("installer.lua")
