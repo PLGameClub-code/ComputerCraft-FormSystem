@@ -1,3 +1,5 @@
+-- To start, use the command "pastebin run yjRh4aez" or "wget run https://github.com/PLGameClub-code/ComputerCraft-FormSystem/raw/main/installer.lua"
+
 width, height = term.getSize()
 term.setBackgroundColor(colors.gray)
 term.clear()
@@ -15,15 +17,15 @@ function cancel(reason)
     end
 end
 
-if fs.exists("/forms") then
+if not term.isColor() then
     term.setTextColor(colors.red)
-    local text = "This application is already installed!"
+    local text = "This application is intented to run on the advanced computer!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
     term.write(text)
     text = "Do you want to continue anyways? Press y/n."
     term.setCursorPos((width/2)-(text:len() / 2), height/2)
     term.write(text)
-    text = "WARNING: This will delete the existing installation!"
+    text = "WARNING: Some features can break!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
     term.write(text)
     repeat
@@ -34,15 +36,34 @@ if fs.exists("/forms") then
     end
 end
 
-if not term.isColor() then
+if not peripheral.find("modem") then
     term.setTextColor(colors.red)
-    local text = "This application is intented to run on the advanced computer!"
+    local text = "This application needs a modem to run!!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
     term.write(text)
     text = "Do you want to continue anyways? Press y/n."
     term.setCursorPos((width/2)-(text:len() / 2), height/2)
     term.write(text)
-    text = "WARNING: Some features can break!"
+    text = "WARNING: The application won't work!"
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
+    term.write(text)
+    repeat
+        event, key = os.pullEvent("key")
+    until ( (key == keys.y) or (key == keys.n) )
+    if (key == keys.n) then
+        cancel()
+    end
+end
+
+if fs.exists("/forms") then
+    term.setTextColor(colors.red)
+    local text = "This application is already installed!"
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
+    term.write(text)
+    text = "Do you want to continue anyways? Press y/n."
+    term.setCursorPos((width/2)-(text:len() / 2), height/2)
+    term.write(text)
+    text = "WARNING: This will delete the existing installation!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
     term.write(text)
     repeat
