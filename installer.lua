@@ -18,6 +18,7 @@ function cancel(reason)
 end
 
 if not term.isColor() then
+    term.clear()
     term.setTextColor(colors.red)
     local text = "This application is intented to run on the advanced computer!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
@@ -36,7 +37,29 @@ if not term.isColor() then
     end
 end
 
+
+if not http then
+    term.clear()
+    term.setTextColor(colors.red)
+    local text = "This installer needs http to work!"
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
+    term.write(text)
+    text = "Please enable http in the ComputerCraft config."
+    term.setCursorPos((width/2)-(text:len() / 2), height/2)
+    term.write(text)
+    text = "Do you want to continue anyways? Press y/n."
+    term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 1)
+    term.write(text)
+    repeat
+        event, key = os.pullEvent("key")
+    until ( (key == keys.y) or (key == keys.n) )
+    if (key == keys.n) then
+        cancel()
+    end
+end
+
 if not peripheral.find("modem") then
+    term.clear()
     term.setTextColor(colors.red)
     local text = "This application needs a modem to run!!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
@@ -56,6 +79,7 @@ if not peripheral.find("modem") then
 end
 
 if fs.exists("/forms") then
+    term.clear()
     term.setTextColor(colors.red)
     local text = "This application is already installed!"
     term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 1)
@@ -74,7 +98,7 @@ if fs.exists("/forms") then
     end
 end
 
-url = "https://raw.githubusercontent.com/PLGameClub-code/ComputerCraft-FormSystem/main/"
+base_url = "https://raw.githubusercontent.com/PLGameClub-code/ComputerCraft-FormSystem/main/"
 
 select = 1
 select_active = true
@@ -139,16 +163,27 @@ while select_active do
     elseif (key == keys.enter) then
         select_active = false
         if (select == 1) then
-            url = (url .. "installer-client.lua")
+            url = (base_url .. "installer-client.lua")
         elseif (select == 2) then
-            url = (url .. "installer-server.lua")
+            url = (base_url .. "installer-server.lua")
         elseif (select == 3) then
             cancel()
         end
     end
 end
 
-print(url)
+-- Download the libraries
+url = "https://pastebin.com/raw/4nRg9CHU"
+local content = http.get(url)
+if not content then
+    cancel("Could not download the json library")
+end
+content = content.readAll()
+local f = fs.open("/forms/json", "w")
+f.write(content)
+f.close()
+
+-- Download the full installer
 local content = http.get(url)
 if not content then
     cancel("Could not download the installer")
@@ -164,5 +199,60 @@ end
 fs.makeDir("/forms")
 
 shell.run("installer.lua")
-
 fs.delete("installer.lua")
+
+-- Download the laucher script
+url = (base_url .. "launcher.lua")
+local content = http.get(url)
+if not content then
+    cancel("Could not download the launcher")
+end
+content = content.readAll()
+local f = fs.open("/rom/programs/forms.lua", "w")
+f.write(content)
+f.close()
+
+-- Download autorun script
+url = (base_url .. "autorun.lua")
+local content = http.get(url)
+if not content then
+    cancel("Could not download the autorun program")
+end
+content = content.readAll()
+local f = fs.open("/rom/autorun/forms.lua", "w")
+f.write(content)
+f.close()
+
+-- Download motd
+url = (base_url .. "motd.txt")
+local content = http.get(url)
+if not content then
+    cancel("Could not download the motd")
+end
+content = content.readAll()
+local f = fs.open("/forms/motd.txt", "w")
+f.write(content)
+f.close()
+
+term.clear()
+text = "Succesfully installed!"
+term.setCursorPos((width/2)-(text:len() / 2), (height/2) - 0.5)
+term.write(text)
+text = "Press any key to restart!"
+term.setCursorPos((width/2)-(text:len() / 2), (height/2) + 0.5)
+term.write(text)
+os.pullEvent("key") -- Wait for key press
+term.clear()
+text = "Rebooting in 3"
+term.setCursorPos((width/2)-(text:len() / 2), height/2)
+term.write(text)
+sleep(1)
+text = "Rebooting in 2"
+term.setCursorPos((width/2)-(text:len() / 2), height/2)
+term.write(text)
+sleep(1)
+text = "Rebooting in 1"
+term.setCursorPos((width/2)-(text:len() / 2), height/2)
+term.write(text)
+sleep(1)
+os.reboot()
